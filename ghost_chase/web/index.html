@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ghost Chase</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Silkscreen:wght@400;700&display=swap">
@@ -23,6 +28,8 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.5}
 .wrap{max-width:1200px;margin:0 auto;padding-block:20px 36px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -32,7 +39,7 @@ header p{margin:0;color:var(--muted);min-width:0;text-wrap:balance}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:20px;align-items:start}
 @media(max-width:920px){.layout{grid-template-columns:minmax(0,1fr)}}
 .stage,.side{min-width:0;display:flex;flex-direction:column;gap:12px}
-
+ 
 .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .btn{font:600 14px var(--font-body);background:var(--panel-2);color:var(--fg);border:1px solid var(--line);
   border-radius:8px;padding:8px 14px;cursor:pointer;min-height:38px}
@@ -52,7 +59,7 @@ input[type=checkbox]{accent-color:var(--pac);width:16px;height:16px}
 .engine.ok i{background:var(--good)}
 .engine.bad i{background:var(--bad)}
 .engine.bad{color:var(--fg)}
-
+ 
 .board{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#05050f}
 canvas{display:block;width:100%;height:auto}
 .banner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
@@ -68,7 +75,7 @@ canvas{display:block;width:100%;height:auto}
 .dpad .left{grid-column:1;grid-row:2}
 .dpad .down{grid-column:2;grid-row:2}
 .dpad .right{grid-column:3;grid-row:2}
-
+ 
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
 .card h2{font-family:var(--font-display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px;color:var(--muted);font-weight:700}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
@@ -85,7 +92,7 @@ canvas{display:block;width:100%;height:auto}
   min-height:3.4em;overflow-wrap:anywhere}
 .legend{display:grid;gap:3px;margin:10px 0 0;padding:0;list-style:none;color:var(--muted);font-size:12.5px}
 .legend i{display:inline-block;width:14px;height:10px;margin-right:8px;vertical-align:-1px;border-radius:2px}
-
+ 
 .ghost-row{display:grid;gap:4px;padding:8px 0;border-top:1px solid var(--line)}
 .ghost-row:first-of-type{border-top:0;padding-top:0}
 .ghost-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -100,14 +107,15 @@ canvas{display:block;width:100%;height:auto}
 .empty{color:var(--muted);font-size:13px;margin:0}
 kbd{font-family:var(--font-mono);font-size:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:0 5px}
 </style>
-
+</head>
+<body>
 <div class="wrap">
   <header>
     <h1>Ghost Chase</h1>
     <p>Three ghosts hunt Pac-Man with three different search algorithms. Play it, or step through one move at a time and watch each ghost think.</p>
     <span class="engine" id="engine" role="status"><i></i><span id="engineText">Connecting to the C++ server...</span></span>
   </header>
-
+ 
   <div class="layout">
     <section class="stage" aria-label="Playfield">
       <div class="toolbar">
@@ -129,7 +137,7 @@ kbd{font-family:var(--font-mono);font-size:12px;background:var(--panel-2);border
           <select id="pacMode"><option value="you">You (arrow keys)</option><option value="ai">AI (Alpha-Beta)</option></select>
         </label>
       </div>
-
+ 
       <div class="board">
         <canvas id="c" aria-label="Maze with Pac-Man and three ghosts"></canvas>
         <div class="banner" id="banner" hidden>
@@ -138,7 +146,7 @@ kbd{font-family:var(--font-mono);font-size:12px;background:var(--panel-2);border
           <button class="btn primary" id="bannerBtn" type="button">Play again</button>
         </div>
       </div>
-
+ 
       <div class="status" aria-live="polite">
         <span>Turn <b id="sTurn">0</b></span>
         <span>Dots left <b id="sDots">0</b></span>
@@ -152,7 +160,7 @@ kbd{font-family:var(--font-mono);font-size:12px;background:var(--panel-2);border
         <button class="btn right" type="button" data-dir="0,1" aria-label="Right">&#9654;</button>
       </div>
     </section>
-
+ 
     <aside class="side" aria-label="Algorithm explanation">
       <div class="card">
         <h2>Watch this ghost think</h2>
@@ -177,18 +185,18 @@ kbd{font-family:var(--font-mono);font-size:12px;background:var(--panel-2);border
           <li><i style="border:2px solid #fff;border-radius:50%;width:10px"></i>Ring: where the ghost searched from</li>
         </ul>
       </div>
-
+ 
       <div class="card">
         <h2>Ghosts</h2>
         <div id="ghostRows"></div>
       </div>
-
+ 
       <div class="card" id="aiCard">
         <h2>Pac-Man AI</h2>
         <label class="inline" for="usePrune"><input type="checkbox" id="usePrune" checked> Use alpha-beta pruning</label>
         <p class="meta" id="aiInfo" style="margin:8px 0 0">Switch Pac-Man to AI to see it look ahead.</p>
       </div>
-
+ 
       <div class="card">
         <h2>What just happened</h2>
         <ul class="log" id="log"></ul>
@@ -196,7 +204,7 @@ kbd{font-family:var(--font-mono);font-size:12px;background:var(--panel-2);border
     </aside>
   </div>
 </div>
-
+ 
 <script>
 (() => {
 'use strict';
@@ -212,7 +220,7 @@ cv.style.aspectRatio = W + ' / ' + H;
 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = id => document.getElementById(id);
-
+ 
 const ALGOS = {
   astar: { label: 'A*', blurb: 'Scores every cell with f = g + h: steps already taken (g) plus a straight-line guess of the steps left (h). It always expands the lowest f, so it finds the shortest route.' },
   best:  { label: 'Best-First', blurb: 'Scores cells by h only, the guess of how close they are to Pac-Man. It rushes toward him and ignores the cost so far, so it is fast but can take a longer route.' },
@@ -224,7 +232,7 @@ const GHOST_DEFS = [
   { name: 'Cyan', color: '#35e0f0' }
 ];
 const algoSel = ['astar', 'best', 'hill'];
-
+ 
 /* ---------- state (all of it comes from the C++ server) ---------- */
 let maze = null, dots = null, dotsLeft = 0, pac = null, ghosts = null;
 let turn = 0, score = 0, over = false, playing = false, inflight = false;
@@ -232,7 +240,7 @@ let kind = 'random', seed = 7, focus = 0, pacMode = 'you', ghostSlow = true;
 let tickMs = 300, lastTickAt = 0, animStart = 0, animMs = 200;
 let showSearch = true, showNums = false, replay = null, usePrune = true;
 let aiInfo = null, logItems = [], pendingWant = null, engineMs = null;
-
+ 
 const id = (r, c) => r * W + c;
 const arrows = { '-1,0': '↑', '1,0': '↓', '0,-1': '←', '0,1': '→' };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -240,7 +248,7 @@ function hexA(hex, a) {
   const n = parseInt(hex.slice(1), 16);
   return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
 }
-
+ 
 /* ---------- talking to the C++ server ---------- */
 async function api(path) {
   const r = await fetch(path, { cache: 'no-store' });
@@ -273,7 +281,7 @@ function convertSearch(s) {
     hill: s.hill ? { cur: s.hill.cur, cands: s.hill.cands.map(a => ({ r: a[0], c: a[1], h: a[2] })), best: s.hill.best } : null
   };
 }
-
+ 
 /* ---------- new game ---------- */
 async function newGame(freshMaze) {
   playing = false; replay = null; pendingWant = null;
@@ -300,7 +308,7 @@ async function newGame(freshMaze) {
     updateAll();
   } catch (e) { showError(e); }
 }
-
+ 
 /* ---------- one turn: ask C++ to move Pac-Man and every ghost ---------- */
 function logSearch(g, res) {
   const t = 'T' + turn + ' · ';
@@ -375,7 +383,7 @@ function finish(won) {
   $('hint').hidden = true;
   updateAll();
 }
-
+ 
 /* ---------- drawing ---------- */
 function drawBoard() {
   ctx.fillStyle = '#05050f';
@@ -480,7 +488,7 @@ function draw(now) {
   const p = pos(pac.r, pac.c, pac.pr, pac.pc);
   drawPac(p[0], p[1], now);
 }
-
+ 
 /* ---------- panel UI ---------- */
 function updateAll() {
   if (!ghosts) return;
@@ -548,7 +556,7 @@ function buildGhostRows() {
     });
   });
 }
-
+ 
 /* ---------- replay controls (replays the trace the C++ search reported) ---------- */
 function ensureReplay(auto) {
   const L = ghosts && ghosts[focus].last;
@@ -566,7 +574,7 @@ function stepReplay(d) {
   if (replay.k >= L.res.order.length) replay.auto = false;
   updateAll();
 }
-
+ 
 /* ---------- input ---------- */
 function setDir(dr, dc) {
   if (pacMode !== 'you' || over) return;
@@ -606,7 +614,7 @@ addEventListener('keydown', e => {
   else if (e.key === ' ' && tag !== 'BUTTON') { e.preventDefault(); togglePlay(); }
   else if ((e.key === 'n' || e.key === 'N') && tag !== 'BUTTON') { $('stepBtn').click(); }
 });
-
+ 
 /* ---------- main loop ---------- */
 function frame(now) {
   requestAnimationFrame(frame);
@@ -619,3 +627,6 @@ newGame(false);
 requestAnimationFrame(frame);
 })();
 </script>
+</body>
+</html>
+ 
