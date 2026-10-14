@@ -235,7 +235,7 @@ int main(int argc, char **argv) {
     setsockopt(srv, SOL_SOCKET, SO_REUSEADDR, (const char *)&yes, sizeof yes);
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);  // only this computer can connect
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);  // only this computer can connect
     bool bound = false;
     for (int p = port; p < port + 10 && !bound; p++) {
         addr.sin_port = htons((unsigned short)p);
